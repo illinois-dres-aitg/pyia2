@@ -28,6 +28,14 @@ import constants
 from ctypes import windll, oledll, POINTER, byref, c_int
 from comtypes.automation import VARIANT
 from comtypes.gen.Accessibility import IAccessible
+from comtypes import COMError, IServiceProvider
+from comtypes.client import GetModule, CreateObject
+import comtypesClient
+
+#a = GetModule("ia2.tlb")
+#IServiceProvider=comtypesClient.GetModule('ServProv.tlb').IServiceProvider
+IA2Lib=comtypesClient.GetModule('ia2.tlb')
+IALib=comtypesClient.GetModule('oleacc.dll').IAccessible
 
 def getDesktop():
   desktop_hwnd = windll.user32.GetDesktopWindow()
@@ -58,26 +66,52 @@ def accessibleObjectFromEvent(event):
     byref(ptr), byref(varChild))
   if res == 0:
     child=varChild.value
-    return ptr.QueryInterface(IAccessible)
+    return normalizeIAccessible(ptr, child)
+    #return ptr.QueryInterface(IAccessible)
   else:
     return None
 
+def normalizeIAccessible(pacc, child_id):
+    if not isinstance(pacc, IAccessible):
+        try:
+            pacc = pacc.QueryInterface(IAccessible)
+        except COMError:
+            raise RuntimeError("%s Not an IAccessible"%pacc)
+    if child_id==0 and not isinstance(pacc,IA2Lib.IAccessible2):
+        try:
+            print("pacc: " + str(pacc))
+            s=pacc.QueryInterface(IServiceProvider)
+            print("S: " + str(s))
+            print("_iid_: " + str(IALib._iid_))
+            print("IAccessible2: " + str(IA2Lib.IAccessible2))
+            pacc2=s.QueryService(IALib._iid_, IA2Lib.IAccessible2)
+            #newPacc=ctypes.POINTER(IA2Lib.IAccessible2)(i)
+            if not pacc2:
+                print ("IA2: %s"%pacc)
+                raise ValueError
+            else:
+                pacc = pacc2
+                print ("Got IA2 object: ", pacc2)
+
+        except Exception as e:
+            print "ERROR cannot get IA2 object:", str(e)
+    return pacc
 
 def findDescendant(acc, pred, breadth_first=False):
   '''
-  Searches for a descendant node satisfying the given predicate starting at 
+  Searches for a descendant node satisfying the given predicate starting at
   this node. The search is performed in depth-first order by default or
   in breadth first order if breadth_first is True. For example,
-  
+
   my_win = findDescendant(lambda x: x.name == 'My Window')
-  
+
   will search all descendants of x until one is located with the name 'My
   Window' or all nodes are exausted. Calls L{_findDescendantDepth} or
   L{_findDescendantBreadth} to start the recursive search.
-  
+
   @param acc: Root accessible of the search
   @type acc: Accessibility.Accessible
-  @param pred: Search predicate returning True if accessible matches the 
+  @param pred: Search predicate returning True if accessible matches the
   search criteria or False otherwise
   @type pred: callable
   @param breadth_first: Search breadth first (True) or depth first (False)?
@@ -87,7 +121,7 @@ def findDescendant(acc, pred, breadth_first=False):
   '''
   if breadth_first:
     return _findDescendantBreadth(acc, pred)
-  
+
   for child in acc:
     try:
       ret = _findDescendantDepth(acc, pred)
@@ -96,13 +130,13 @@ def findDescendant(acc, pred, breadth_first=False):
     if ret is not None: return ret
 
 def _findDescendantBreadth(acc, pred):
-  '''  
+  '''
   Internal function for locating one descendant. Called by L{findDescendant} to
   start the search.
- 
+
   @param acc: Root accessible of the search
   @type acc: Accessibility.Accessible
-  @param pred: Search predicate returning True if accessible matches the 
+  @param pred: Search predicate returning True if accessible matches the
   search criteria or False otherwise
   @type pred: callable
   @return: Matching node or None to keep searching
@@ -124,10 +158,10 @@ def _findDescendantDepth(acc, pred):
   '''
   Internal function for locating one descendant. Called by L{findDescendant} to
   start the search.
-  
+
   @param acc: Root accessible of the search
   @type acc: Accessibility.Accessible
-  @param pred: Search predicate returning True if accessible matches the 
+  @param pred: Search predicate returning True if accessible matches the
   search criteria or False otherwise
   @type pred: callable
   @return: Matching node or None to keep searching
@@ -143,20 +177,20 @@ def _findDescendantDepth(acc, pred):
     except Exception:
       ret = None
     if ret is not None: return ret
-   
+
 def findAllDescendants(acc, pred):
   '''
-  Searches for all descendant nodes satisfying the given predicate starting at 
+  Searches for all descendant nodes satisfying the given predicate starting at
   this node. Does an in-order traversal. For example,
-  
+
   pred = lambda x: x.getRole() == pyatspi.ROLE_PUSH_BUTTON
   buttons = pyatspi.findAllDescendants(node, pred)
-  
+
   will locate all push button descendants of node.
-  
+
   @param acc: Root accessible of the search
   @type acc: Accessibility.Accessible
-  @param pred: Search predicate returning True if accessible matches the 
+  @param pred: Search predicate returning True if accessible matches the
       search criteria or False otherwise
   @type pred: callable
   @return: All nodes matching the search criteria
