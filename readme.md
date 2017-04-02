@@ -6,11 +6,17 @@ The purpose of the project is to support ARIA and HTML implementation testing as
 
 ## Installation Requirements
 
-* Install python 2.7 for Windows
+* Install python 2.7 and pip for Windows 
 * Install comtypes library using pip
   
 ```
 pip install comtypes
+```
+
+* Register IAccessible2Proxy.dll with Windows
+  
+```
+regsvr32 IAccessible2Proxy.dll
 ```
 
 * Clone this repository
