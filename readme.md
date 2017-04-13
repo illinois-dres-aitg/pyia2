@@ -25,6 +25,10 @@ regsvr32 IAccessible2Proxy.dll
 * test.py will display a list of information on the currenly open windows
 * test-callback.py will list events related to document loads and focus changes
 
+## Chrome Browser Configuration
+* Chrome has an accessibility configutation options avaialble through typing in the following URL: chrome://accessibility/
+* Use this configuration option to configure chrome to expose accessibility information
+
 ## References
 * [pyia project](https://github.com/eeejay/pyia)
 * [W3C Accessible Technology Test Adapter (ATTA) API Specification](https://spec-ops.github.io/atta-api/)
