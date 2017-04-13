@@ -1,8 +1,8 @@
 # Python Interface to MSAA+IAccessible2
 
-This project builds on top of the work of Eitan Isaacson [pyia](https://github.com/eeejay/pyia) project to build a python library to Microsoft Active Accessibility (MSAA) and IAccessible2 interfaces for Windows Operating system.
+This project builds on top of the work of Eitan Isaacson [pyia](https://github.com/eeejay/pyia) project to build a python library to expose Microsoft Active Accessibility (MSAA) and IAccessible2 interfaces for Windows Operating system.
 This project extends the pyia project to support the IAccessible2 interfaces. 
-The purpose of the project is to support ARIA and HTML implementation testing as part of the activities of the W3C WAI ARIA working group.
+The purpose of the project is to support ARIA and HTML5 implementation of the accessibility mapping specifictions as part of the activities of the W3C WAI ARIA and HTML5 working groups.
 
 ## Installation Requirements
 
@@ -13,7 +13,7 @@ The purpose of the project is to support ARIA and HTML implementation testing as
 pip install comtypes
 ```
 
-* Register IAccessible2Proxy.dll with Windows
+* Register IAccessible2Proxy.dll with Windows (Note: this needs to be done with administration priveleges)
   
 ```
 regsvr32 IAccessible2Proxy.dll
