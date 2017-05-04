@@ -28,17 +28,18 @@ Boston, MA 02111-1307, USA.
 import new
 import types
 
+
 from comtypes.client import GetModule
 IAccessible2 = GetModule('ia2.tlb')
 
 from comtypes.automation import VARIANT, VT_I4, VT_DISPATCH
 from ctypes import c_long, oledll, byref, create_unicode_buffer
-from comtypes.gen.Accessibility   import IAccessible
 from comtypes.gen.IAccessible2Lib import IAccessible2
 from comtypes import named_property, COMError, hresult
 from constants import CHILDID_SELF, \
     UNLOCALIZED_ROLE_NAMES, \
-    UNLOCALIZED_STATE_NAMES
+    UNLOCALIZED_STATE_NAMES, \
+    UNLOCALIZED_IA2_STATE_NAMES
 
 
 def _makeExceptionHandler(func):
@@ -164,7 +165,7 @@ def _mixClass(cls, new_cls, ignore=[]):
             setattr(cls, name, func)
 
 
-class _IAccessibleMixin(object):
+class _IAccessible2Mixin(object):
     def __getitem__(self, index):
         n = self.accChildCount
         if index >= n or index < -n:
@@ -195,7 +196,7 @@ class _IAccessibleMixin(object):
 
     def __str__(self):
         try:
-            return u'[%s | %s]' % (self.accRoleName(), 
+            return u'[%s | %s]' % (self.accRole(), 
                                    self.accName(CHILDID_SELF) or '')
         except:
             raise
@@ -204,7 +205,7 @@ class _IAccessibleMixin(object):
     def __len__(self):
         return self.accChildCount
 
-    def accStateSet(self, child_id=CHILDID_SELF):
+    def ia2StateSet(self, child_id=CHILDID_SELF):
         states = []
         state = self.accState(child_id)
         for shift in xrange(64):
@@ -215,7 +216,7 @@ class _IAccessibleMixin(object):
                         (state_bit & state), 'unknown'))
         return states
 
-    def accLocalizedStateSet(self, child_id=CHILDID_SELF):
+    def ia2LocalizedStateSet(self, child_id=CHILDID_SELF):
         states = []
         state = self.accState(child_id)
         for shift in xrange(64):
@@ -233,21 +234,21 @@ class _IAccessibleMixin(object):
         else:
             return ''
         
-    def accRoleName(self, child_id=CHILDID_SELF):
+    def ia2RoleName(self, child_id=CHILDID_SELF):
         role = self.accRole(child_id)
         if not isinstance(role, int):
             # Maybe one of those Mozilla string roles, just return it.
             return role
         return UNLOCALIZED_ROLE_NAMES.get(role, 'unknown')
 
-    def accRoleName2(self):
+    def ia2RoleName2(self):
         role = self.role
         if not isinstance(role, int):
             # Maybe one of those Mozilla string roles, just return it.
             return role
         return UNLOCALIZED_ROLE_NAMES.get(role, 'unknown')
 
-    def accLocalizedRoleName(self, child_id=CHILDID_SELF):
+    def ia2LocalizedRoleName(self, child_id=CHILDID_SELF):
         role = self.accRole(child_id)
         if not isinstance(role, int):
             # Maybe one of those Mozilla string roles, just return it.
@@ -268,13 +269,9 @@ class _ChildMethodWrapper(object):
 #        print 'should call', self.meth, 'with', self.child_id
         return self.meth(self.child_id)
 
-class ManagedChildAccessible(object):
+class ManagedChildAccessible2(object):
     _managed_funcs = [
-        'accDefaultAction', 'accDescription', 'accDoDefaultAction', 
-        'accFocus', 'accHelp', 'accHelpTopic', 'accKeyboardShortcut', 
-        'accLocation', 'accName', 'accNavigate', 'accParent', 
-        'accRole', 'accRoleName', 'accSelect', 'accState', 
-        'accStateSet', 'accValue']
+        'relations', 'role', 'scrollTo', 'states']
 
     def __init__(self, parent, child_id):
         self.parent = parent
@@ -305,7 +302,7 @@ class ManagedChildAccessible(object):
     def __getitem__(self, index):
         raise IndexError
 
-_mixExceptions(IAccessible)
-_mixClass(IAccessible, _IAccessibleMixin)
+_mixExceptions(IAccessible2)
+_mixClass(IAccessible2, _IAccessibleMixin2)
 
 

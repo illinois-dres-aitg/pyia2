@@ -32,6 +32,10 @@ from comtypes import COMError, IServiceProvider
 from comtypes.client import GetModule, CreateObject
 import comtypesClient
 
+from constants import CHILDID_SELF, \
+    UNLOCALIZED_ROLE_NAMES, \
+    UNLOCALIZED_STATE_NAMES
+
 #a = GetModule("ia2.tlb")
 #IServiceProvider=comtypesClient.GetModule('ServProv.tlb').IServiceProvider
 IA2Lib=comtypesClient.GetModule('ia2.tlb')
@@ -66,36 +70,80 @@ def accessibleObjectFromEvent(event):
     byref(ptr), byref(varChild))
   if res == 0:
     child=varChild.value
-    return normalizeIAccessible(ptr, child)
-    #return ptr.QueryInterface(IAccessible)
+#    return normalizeIAccessible(ptr, child)
+    return ptr.QueryInterface(IAccessible)
   else:
     return None
 
-def normalizeIAccessible(pacc, child_id):
+def accessible2FromAccessible(pacc, child_id):
+
     if not isinstance(pacc, IAccessible):
         try:
             pacc = pacc.QueryInterface(IAccessible)
         except COMError:
             raise RuntimeError("%s Not an IAccessible"%pacc)
+
     if child_id==0 and not isinstance(pacc,IA2Lib.IAccessible2):
         try:
-            print("pacc: " + str(pacc))
+#            print("pacc: " + str(pacc))
             s=pacc.QueryInterface(IServiceProvider)
-            print("S: " + str(s))
-            print("_iid_: " + str(IALib._iid_))
-            print("IAccessible2: " + str(IA2Lib.IAccessible2))
+#            print("S: " + str(s))
+#            print("_iid_: " + str(IALib._iid_))
+#            print("IAccessible2: " + str(IA2Lib.IAccessible2))
             pacc2=s.QueryService(IALib._iid_, IA2Lib.IAccessible2)
             #newPacc=ctypes.POINTER(IA2Lib.IAccessible2)(i)
             if not pacc2:
-                print ("IA2: %s"%pacc)
+    #            print ("IA2: %s"%pacc)
                 raise ValueError
             else:
-                pacc = pacc2
-                print ("Got IA2 object: ", pacc2)
+#                print ("Got IA2 object: ", pacc2)
+                return pacc2
 
         except Exception as e:
             print "ERROR cannot get IA2 object:", str(e)
-    return pacc
+
+    return None
+
+def accessible2RoleName(pacc2):
+    role = pacc2.role()
+
+    if not isinstance(role, int):
+            # Maybe one of those Mozilla string roles, just return it.
+            return role
+    
+    return UNLOCALIZED_ROLE_NAMES.get(role, 'unknown')
+
+    return str(pacc2.role())
+
+def accessibleRelationFromAccessible2(pacc2):
+
+    if isinstance(pacc2,IA2Lib.IAccessible2):
+        out = "Relation info:"
+        try:
+            out +=  "  Number(" + str(pacc2.nRelations) + ")\n\r "
+
+        except Exception as e:
+            print "ERROR cannot get IA2 nRelation:", str(e)
+
+        try:
+            for i in range (pacc2.nRelations):
+              out +=  "[Type: " + pacc2.relation(i).relationType + "; "
+              out +=  "Targets(" + str(pacc2.relation(i).nTargets) + ") "
+              for j in range(pacc2.relation(i).nTargets):
+                t = pacc2.relation(i).target(j)
+                s=t.QueryInterface(IServiceProvider)
+                oa2=s.QueryService(IALib._iid_, IA2Lib.IAccessible2)
+
+                out += "'" + str(oa2) + "'"
+
+              out += "]"
+
+            return out
+
+        except Exception as e:
+            print "ERROR cannot get IA2 relation:", str(e)
+
+    return "None"    
 
 def findDescendant(acc, pred, breadth_first=False):
   '''
