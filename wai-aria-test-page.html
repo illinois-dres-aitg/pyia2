@@ -11,18 +11,40 @@
 
       <div role="link" tabindex="0">link example</div>
 
-      <div role="checkbox" aria-checked="true" tabindex="0">Checkbox example (aria-checked=true)</div>
+      <div id="cb1" role="checkbox" aria-checked="true" aria-required="true" tabindex="0">Checkbox example (aria-checked=true)</div>
 
-      <div role="checkbox" aria-checked="mixed" tabindex="0">Checkbox example (aria-checked=mixed)</div>
+      <div id="cb2" role="checkbox" aria-checked="mixed" required tabindex="0">Checkbox example (aria-checked=mixed)</div>
 
-      <div role="checkbox" aria-checked="false" tabindex="0">Checkbox example (aria-checked=false)</div>
+      <div id="cb3" role="checkbox" aria-checked="false" tabindex="0">Checkbox example (aria-checked=false)</div>
 
-      <div role="button" aria-haspopup="true" tabindex="0">Button example (aria-haspopup=true)</div>
+      <div id="cb4" role="button" aria-haspopup="true" tabindex="0">Button example (aria-haspopup=true)</div>
 
       <div role="button" aria-expanded="true" tabindex="0">Button example (aria-expanded=true)</div>
 
       <div role="menu" aria-expanded="true" tabindex="0" aria-label="Menu example">Menu example (aria-expanded=true)</div>
 
+      <table role="grid" tabindex="0">
+        <thead>
+          <tr>
+            <th role="columnHeader" tabindex="0">Header 1</th>
+            <th role="columnHeader" tabindex="0">header 2</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td tabindex="0">Data 11</td>
+            <td tabindex="0">Data 12</td>
+          </tr>
+          <tr aria-rowindex="4">
+            <td tabindex="0" aria-selected="false" aria-colindex="3">Data 21 (aria-selected="false" aria-colindex="3")</td>
+            <td tabindex="0" aria-selected="true"  aria-colindex="5">Data 22 (aria-selected="false" aria-colindex="3")</td>
+          </tr>
+          <tr aria-rowindex="7">
+            <td tabindex="0">Data 31</td>
+            <td tabindex="0">Data 32</td>
+          </tr>
+        </tbody>
+      </table>
     </main>
   </body>
 

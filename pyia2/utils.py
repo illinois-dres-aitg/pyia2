@@ -34,7 +34,8 @@ import comtypesClient
 
 from constants import CHILDID_SELF, \
     UNLOCALIZED_ROLE_NAMES, \
-    UNLOCALIZED_STATE_NAMES
+    UNLOCALIZED_STATE_NAMES, \
+    UNLOCALIZED_IA2_STATE_NAMES
 
 #a = GetModule("ia2.tlb")
 #IServiceProvider=comtypesClient.GetModule('ServProv.tlb').IServiceProvider
@@ -104,6 +105,35 @@ def accessible2FromAccessible(pacc, child_id):
 
     return None
 
+def accessibleTableCellFromAccessible(pacc, child_id):
+
+    if not isinstance(pacc, IAccessible):
+        try:
+            pacc = pacc.QueryInterface(IAccessible)
+        except COMError:
+            raise RuntimeError("%s Not an IAccessible"%pacc)
+
+    if child_id==0 and not isinstance(pacc,IA2Lib.IAccessibleTableCell):
+        try:
+#            print("pacc: " + str(pacc))
+            s=pacc.QueryInterface(IServiceProvider)
+#            print("S: " + str(s))
+#            print("_iid_: " + str(IALib._iid_))
+#            print("IAccessible2: " + str(IA2Lib.IAccessible2))
+            pacc2=s.QueryService(IALib._iid_, IA2Lib.IAccessibleTableCell)
+            #newPacc=ctypes.POINTER(IA2Lib.IAccessible2)(i)
+            if not pacc2:
+    #            print ("IA2: %s"%pacc)
+                raise ValueError
+            else:
+#                print ("Got IA2 object: ", pacc2)
+                return pacc2
+
+        except Exception as e:
+            print "ERROR cannot get IA2 Table Cell object:", str(e)
+
+    return None
+
 def accessible2RoleName(pacc2):
     role = pacc2.role()
 
@@ -114,6 +144,17 @@ def accessible2RoleName(pacc2):
     return UNLOCALIZED_ROLE_NAMES.get(role, 'unknown')
 
     return str(pacc2.role())
+
+def accessible2States(pacc2):
+    states = pacc2.states
+
+    str = ""
+    for item in UNLOCALIZED_IA2_STATE_NAMES:
+      if item & states:
+        str += UNLOCALIZED_IA2_STATE_NAMES[item] + ' '
+
+    return str
+
 
 def accessibleRelationFromAccessible2(pacc2):
 

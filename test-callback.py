@@ -54,10 +54,25 @@ def event_cb(event):
     except:
         print("MSAA STATE(SET): undefined")
 
+    try:
+        print("MSAA ROWINDEX: " + str(ao.rowindex))
+    except:
+        print("MSAA ROWINDEX: undefined")
+
+
 
     ao2 = pyia2.accessible2FromAccessible(ao, CHILDID_SELF)
     if isinstance(ao2, IA2Lib.IAccessible2):
 #        print("IAccessible2 Values: %s"%ao)
+
+        print('\n---- IAccessibleTableCell -----')
+
+        try:
+            ia2_role = str(ao2.role())
+            print("IA2 ROLE(int): " + ia2_role);
+        except:
+            print("IA2 ROLE(int): undefined")
+
         try:
             ia2_role = pyia2.accessible2RoleName(ao2)
             print("IA2 ROLE: " + ia2_role);
@@ -65,19 +80,14 @@ def event_cb(event):
             print("IA2 ROLE: undefined")
 
         try:
-            print("IA2 ROLE (localized): " + ao2.localizedExtendedRole)
+            print("IA2 STATES(bits): " + str(ao2.states))
         except:
-            print("IA2 ROLE (localized): undefined")
+            print("IA2 STATES(bits): undefined")
 
         try:
-            print("IA2 STATES: " + str(ao2.states))
+            print("IA2 STATES: " + pyia2.accessible2States(ao2))
         except:
             print("IA2 STATES: undefined")
-
-        try:
-            print("IA2 STATES (localized): " + str(ao2.localizedExtendedStates()))
-        except:
-            print("IA2 STATES (localized): undefined")
 
         try:
             y = pyia2.accessibleRelationFromAccessible2(ao2)
@@ -100,6 +110,24 @@ def event_cb(event):
         except:
             print("GROUP POSITION: undefined")
 
+    aot = pyia2.accessibleTableCellFromAccessible(ao, CHILDID_SELF)
+    if isinstance(aot, IA2Lib.IAccessibleTableCell):
+
+        print('\n---- IAccessibleTableCell -----')
+        try:
+            print("IA2 ROWINDEX: " + str(aot.rowIndex))
+        except:
+            print("IA2 ROWINDEX: undefined")
+
+        try:
+            print("IA2 COLINDEX: " + str(aot.columnIndex))
+        except:
+            print("IA2 COLINDEX: undefined")
+
+        try:
+            print("IA2 ISSELECTED: " + str(aot.isSelected()))
+        except:
+            print("IA2 ISSELECTED: undefined")
 
     else:
         print "Not IA2 Object"
