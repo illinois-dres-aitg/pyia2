@@ -166,33 +166,6 @@ def _mixClass(cls, new_cls, ignore=[]):
 
 
 class _IAccessible2Mixin(object):
-    def __getitem__(self, index):
-        n = self.accChildCount
-        if index >= n or index < -n:
-            raise IndexError
-        elif index < 0:
-            index += n
-        for i, c in enumerate(self):
-            if i == index:
-                return c
-        raise IndexError
-
-    def __iter__(self):
-        accChildCount = self.accChildCount
-        VariantArrayType = VARIANT * accChildCount
-        rgvarChildren = VariantArrayType()
-        pcObtained = c_long()
-        try:
-            oledll.oleacc.AccessibleChildren(self, 0, accChildCount, 
-                                             rgvarChildren, byref(pcObtained))
-        except:
-            pcObtained = c_long(0)
-        for i in xrange(pcObtained.value):
-            child = rgvarChildren[i]
-            if child.vt == VT_I4:
-                yield ManagedChildAccessible(self, child.value)
-            elif child.vt == VT_DISPATCH:
-                yield child.value.QueryInterface(IAccessible)
 
     def __str__(self):
         try:
@@ -202,8 +175,6 @@ class _IAccessible2Mixin(object):
             raise
             return u'[DEAD]'
 
-    def __len__(self):
-        return self.accChildCount
 
     def ia2StateSet(self, child_id=CHILDID_SELF):
         states = []
@@ -248,59 +219,6 @@ class _IAccessible2Mixin(object):
             return role
         return UNLOCALIZED_ROLE_NAMES.get(role, 'unknown')
 
-    def ia2LocalizedRoleName(self, child_id=CHILDID_SELF):
-        role = self.accRole(child_id)
-        if not isinstance(role, int):
-            # Maybe one of those Mozilla string roles, just return it.
-            return role
-        roleLen = oledll.oleacc.GetRoleTextW(role,0,0)
-        if roleLen:
-            buf = create_unicode_buffer(roleLen + 2)
-            oledll.oleacc.GetRoleTextW(role, buf, roleLen + 1)
-            return buf.value
-        else:
-            return ''
-
-class _ChildMethodWrapper(object):
-    def __init__(self, meth, child_id):
-        self.child_id = child_id
-        self.meth = meth
-    def __call__(self, *args, **kwargs):
-#        print 'should call', self.meth, 'with', self.child_id
-        return self.meth(self.child_id)
-
-class ManagedChildAccessible2(object):
-    _managed_funcs = [
-        'relations', 'role', 'scrollTo', 'states']
-
-    def __init__(self, parent, child_id):
-        self.parent = parent
-        self.child_id = child_id
-
-    def __getattr__(self, name):
-        if name in self._managed_funcs:
-            return _ChildMethodWrapper(
-                getattr(self.parent, name), self.child_id)
-        raise AttributeError
-
-    def __nonzero__(self):
-        return True
-    
-    def __str__(self):
-        try:
-            return u'[%s | %s]' % (self.accRoleName(), 
-                                   self.accName() or '')
-        except:
-            return u'[DEAD]'
-
-    def __len__(self):
-        return 0
-
-    def __iter__(self):
-        return iter([])
-
-    def __getitem__(self, index):
-        raise IndexError
 
 _mixExceptions(IAccessible2)
 _mixClass(IAccessible2, _IAccessibleMixin2)
