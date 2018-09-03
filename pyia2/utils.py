@@ -101,7 +101,8 @@ def accessible2FromAccessible(pacc, child_id):
                 return pacc2
 
         except Exception as e:
-            print "ERROR cannot get IA2 object:", str(e)
+            pass
+            # print "ERROR cannot get IA2 object:", str(e)
 
     return None
 
