@@ -30,7 +30,7 @@ import types
 
 
 from comtypes.client import GetModule
-IAccessible2 = GetModule('ia2.tlb')
+IAccessible2 = GetModule('ia2.tlb').IAccessible2
 
 from comtypes.automation import VARIANT, VT_I4, VT_DISPATCH
 from ctypes import c_long, oledll, byref, create_unicode_buffer
@@ -169,7 +169,7 @@ class _IAccessible2Mixin(object):
 
     def __str__(self):
         try:
-            return u'[%s | %s]' % (self.accRole(), 
+            return u'[%s | %s]' % (self.accRole(CHILDID_SELF), 
                                    self.accName(CHILDID_SELF) or '')
         except:
             raise
@@ -221,6 +221,6 @@ class _IAccessible2Mixin(object):
 
 
 _mixExceptions(IAccessible2)
-_mixClass(IAccessible2, _IAccessibleMixin2)
+_mixClass(IAccessible2, _IAccessible2Mixin)
 
 
