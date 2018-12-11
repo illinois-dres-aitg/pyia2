@@ -1,3 +1,6 @@
+# Convenience functions for getting IAccessible and IAccessible2 instances
+# within a Python REPL session.
+
 import pyia2
 from pyia2.constants import CHILDID_SELF, \
     UNLOCALIZED_ROLE_NAMES, \
@@ -5,6 +8,11 @@ from pyia2.constants import CHILDID_SELF, \
 from pyia2.utils import IA2Lib
 
 def NextAccessible(event_id=pyia2.EVENT_OBJECT_FOCUS, predicate=None):
+    '''Returns an IAccessible from the next requested event, blocking until it
+    arrives. Will only match the specified event_id, and only when
+    predicate(event, accessible) returns True.
+    '''
+    
     shared = {}
     def callback(event):
         accessible = pyia2.accessibleObjectFromEvent(event)
@@ -21,6 +29,11 @@ def NextAccessible(event_id=pyia2.EVENT_OBJECT_FOCUS, predicate=None):
     return shared["accessible"]
 
 def NextAccessible2(event_id=pyia2.EVENT_OBJECT_FOCUS, predicate=None):
+    '''Returns an IAccessible2 from the next requested event, blocking until it
+    arrives. Will only match the specified event_id, and only when
+    predicate(event, accessible2) returns True.
+    '''
+
     def augmented_predicate(event, accessible):
         accessible2 = pyia2.accessible2FromAccessible(accessible, CHILDID_SELF)
         if not isinstance(accessible2, IA2Lib.IAccessible2):
