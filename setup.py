@@ -1,9 +1,8 @@
 r"""A MSAA client library.
 
 """
-import sys, os
-from distutils.core import setup, Command, DistutilsOptionError
-import pyia
+from setuptools import setup
+import pyia2
 
 classifiers = [
     'Development Status :: 3 - Alpha',
@@ -17,11 +16,12 @@ classifiers = [
 setup(name="pyia2",
       description="Python MSAA+IAccessible2 client library",
       long_description = __doc__,
-      author="Jon Guderson",
+      author="Jon Gunderson",
       author_email="jongund@illinois.edu",
-      url="http://github.com/jongund/pyia2/tree/master",
-      download_url = "http://github.com/jongund/pyia2/tree/master",
+      url="https://github.com/illinois-dres-aitg/pyia2/tree/master",
+      download_url="https://github.com/illinois-dres-aitg/pyia2/tree/master/pyia2",
       license="LGPLv2.2",
       classifiers=classifiers,
-      version=pyia.__version__,
-      packages=["pyia2"])
+      version=pyia2.__version__,
+      packages=["pyia2"],
+      package_data={"": ["*.tlb"]})
