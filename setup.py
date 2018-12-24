@@ -24,4 +24,5 @@ setup(name="pyia2",
       classifiers=classifiers,
       version=pyia2.__version__,
       packages=["pyia2"],
-      package_data={"": ["*.tlb"]})
+      package_data={"": ["*.tlb"]},
+      install_requires=["comtypes"])

@@ -7,19 +7,18 @@ The purpose of the project is to support ARIA and HTML5 implementation of the ac
 ## Installation Requirements
 
 * Install python 2.7 and pip for Windows 
-* Install comtypes library using pip
-  
-```
-pip install comtypes
-```
-
+* Clone this repository
 * Register IAccessible2Proxy.dll with Windows (Note: this needs to be done with administration priveleges)
   
 ```
 regsvr32 IAccessible2Proxy.dll
 ```
 
-* Clone this repository
+* Install using pip
+  
+```
+pip install -e C:\path\to\repository
+```
 
 ## Examples
 * test.py will display a list of information on the currenly open windows
