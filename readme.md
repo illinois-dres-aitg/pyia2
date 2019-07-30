@@ -8,16 +8,16 @@ The purpose of the project is to support ARIA and HTML5 implementation of the ac
 
 * Install python 2.7 and pip for Windows 
 * Clone this repository
-* Register IAccessible2Proxy.dll with Windows (Note: this needs to be done with administration priveleges)
-  
-```
-regsvr32 IAccessible2Proxy.dll
-```
-
 * Install using pip
   
 ```
 pip install -e C:\path\to\repository
+```
+
+* The `setup.py` file will try to register IAccessible2Proxy.dll with Windows. If it fails, then you need to register it manually with administration privileges:
+
+```
+regsvr32 IAccessible2Proxy.dll
 ```
 
 ## Examples
