@@ -423,6 +423,6 @@ IA2_EVENT_VISIBLE_DATA_CHANGED          = 0x122
 
 winEventIDsToEventNames={}
 
-for _sym, _val in locals().items():
+for _sym, _val in list(locals().items()):
     if _sym.startswith('EVENT_') or  _sym.startswith('IA2_EVENT_'):
         winEventIDsToEventNames[_val] = _sym
