@@ -130,7 +130,7 @@ def event_cb(event):
             print("IA2 ISSELECTED: undefined")
 
     else:
-        print "Not IA2 Object"
+        print("Not IA2 Object")
 
 
 print("This program monitors document and focus changes events for MSAA and IAccessible2 and provides information about the event.")

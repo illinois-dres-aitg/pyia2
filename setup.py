@@ -67,7 +67,7 @@ setup(name="pyia2",
       version=pyia2.__version__,
       packages=["pyia2"],
       package_data={"": ["*.tlb"]},
-      install_requires=["comtypes"],
+      install_requires=["comtypes", "six"],
       cmdclass={
           'develop': PostDevelopCommand,
           'install': PostInstallCommand,

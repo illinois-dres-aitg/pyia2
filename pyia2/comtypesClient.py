@@ -15,7 +15,7 @@
 
 # comtypes.client
 
-import sys, os, new
+import sys, os, types
 import ctypes
 
 import comtypes
@@ -41,7 +41,7 @@ def _find_gen_dir():
         try:
             from comtypes import gen
         except ImportError:
-            module = sys.modules["comtypes.gen"] = new.module("comtypes.gen")
+            module = sys.modules["comtypes.gen"] = types.ModuleType("comtypes.gen")
             comtypes.gen = module
         return None
     # determine the place where generated modules live
@@ -97,7 +97,7 @@ def GetBestInterface(punk):
         else:
             if ta.cImplTypes != 1:
                 # Hm, should we use dynamic now?
-                raise TypeError, "No default interface found"
+                raise TypeError("No default interface found")
             # Only one interface implemented, use that (even if
             # not marked as default).
             index = 0
@@ -120,7 +120,7 @@ def GetBestInterface(punk):
     logger.info("Default interface is %s", typeattr.guid)
     try:
         punk.QueryInterface(comtypes.IUnknown, typeattr.guid)
-    except comtypes.COMError, details:
+    except comtypes.COMError as details:
         logger.info("Does not implement default interface, returning dynamic object")
         return comtypes.client.dynamic.Dispatch(punk)
 

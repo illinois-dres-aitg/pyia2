@@ -25,14 +25,18 @@ Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.
 '''
 
-import constants
+import logging
+
+from . import constants
 import traceback
 from ctypes import CFUNCTYPE, c_int, c_voidp, windll
 from comtypes.client import PumpEvents
-from event import Event
-from utils import accessibleObjectFromEvent
+from .event import Event
+from .utils import accessibleObjectFromEvent
 
 class Registry(object):
+    _log = logging.getLogger("registry")
+
     def __init__(self):
         self.clients = {}
         self.hook_ids = []
@@ -55,7 +59,7 @@ class Registry(object):
             
     def registerEventListener(self, client, *event_types):
         for event_type in event_types:
-            if self.clients.has_key((client, event_type)):
+            if (client, event_type) in self.clients:
                 continue
             hook_id = \
                 windll.user32.SetWinEventHook(
@@ -64,8 +68,8 @@ class Registry(object):
             if hook_id:
                 self.clients[(client, event_type)] = hook_id
             else:
-                print "Could not register callback for %s" % \
-                    constants.winEventIDsToEventNames.get(event_type, event_type)
+                print("Could not register callback for %s" % \
+                    constants.winEventIDsToEventNames.get(event_type, event_type))
 
     def deregisterEventListener(self, client, *event_types):
         for event_type in event_types:
@@ -87,8 +91,14 @@ class Registry(object):
 
 
     def iter_loop(self, timeout=1):
-        PumpEvents(timeout)
-        
+        try:
+            PumpEvents(timeout)
+        except WindowsError as e:
+            # The message is usually the following:
+            # "OLE has sent a request and is waiting for a reply"
+            # It seems to be safe to ignore this; everything still works properly.
+            self._log.debug("Windows error while pumping COM events: %s", e)
+
     def start(self):
         while True:
             try:

@@ -24,15 +24,17 @@ Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.
 '''
 
-import constants
+from . import constants
 from ctypes import windll, oledll, POINTER, byref, c_int
 from comtypes.automation import VARIANT
 from comtypes.gen.Accessibility import IAccessible
 from comtypes import COMError, IServiceProvider
 from comtypes.client import GetModule, CreateObject
-import comtypesClient
+from . import comtypesClient
 
-from constants import CHILDID_SELF, \
+from six import text_type
+
+from .constants import CHILDID_SELF, \
     UNLOCALIZED_ROLE_NAMES, \
     UNLOCALIZED_STATE_NAMES, \
     UNLOCALIZED_IA2_STATE_NAMES
@@ -131,7 +133,7 @@ def accessibleTableCellFromAccessible(pacc, child_id):
                 return pacc2
 
         except Exception as e:
-            print "ERROR cannot get IA2 Table Cell object:", str(e)
+            print("ERROR cannot get IA2 Table Cell object: %s" % e)
 
     return None
 
@@ -165,7 +167,7 @@ def accessibleRelationFromAccessible2(pacc2):
             out +=  "  Number(" + str(pacc2.nRelations) + ")\n\r "
 
         except Exception as e:
-            print "ERROR cannot get IA2 nRelation:", str(e)
+            print("ERROR cannot get IA2 nRelation: %s" % e)
 
         try:
             for i in range (pacc2.nRelations):
@@ -183,7 +185,7 @@ def accessibleRelationFromAccessible2(pacc2):
             return out
 
         except Exception as e:
-            print "ERROR cannot get IA2 relation:", str(e)
+            print("ERROR cannot get IA2 relation: %s" % e)
 
     return "None"    
 
@@ -322,7 +324,7 @@ def findAncestor(acc, pred):
         acc = parent
 
 def printSubtree(acc, indent=0):
-  print '%s%s' % (indent*' ', unicode(acc).encode('cp1252', 'ignore'))
+  print('%s%s' % (indent*' ', text_type(acc).encode('cp1252', 'ignore')))
   for child in acc:
     try:
       printSubtree(child, indent+1)
