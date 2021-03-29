@@ -2,12 +2,13 @@ r"""A MSAA client library.
 
 """
 
+import codecs
 import ctypes
 import os
+import os.path
 import sys
 
 from setuptools import setup
-import pyia2
 from setuptools.command.develop import develop
 from setuptools.command.install import install
 
@@ -19,6 +20,21 @@ classifiers = [
     'Programming Language :: Python',
     'Topic :: Software Development :: Libraries :: Python Modules',
     ]
+
+
+def read(rel_path):
+    here = os.path.abspath(os.path.dirname(__file__))
+    with codecs.open(os.path.join(here, rel_path), 'r') as fp:
+        return fp.read()
+
+
+def get_version(rel_path):
+    for line in read(rel_path).splitlines():
+        if line.startswith('__version__'):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    else:
+        raise RuntimeError("Unable to find version string.")
 
 
 def post_install():
@@ -64,7 +80,7 @@ setup(name="pyia2",
       download_url="https://github.com/illinois-dres-aitg/pyia2/tree/master/pyia2",
       license="LGPLv2.2",
       classifiers=classifiers,
-      version=pyia2.__version__,
+      version=get_version("pyia2/__init__.py"),
       packages=["pyia2"],
       package_data={"": ["*.tlb"]},
       install_requires=["comtypes", "six"],
