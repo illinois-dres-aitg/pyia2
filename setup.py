@@ -7,6 +7,7 @@ import ctypes
 import os
 import os.path
 import sys
+import struct
 
 from setuptools import setup
 from setuptools.command.develop import develop
@@ -49,7 +50,10 @@ def post_install():
     ShellExecute = shell32.ShellExecuteA if PY2 else shell32.ShellExecuteW
 
     # Get the DLL's path and attempt to register it with elevated privileges.
-    dll_path = os.path.join(os.getcwd(), "pyia2", "IAccessible2Proxy.dll")
+    if (struct.calcsize("P") * 8) == 32:
+        dll_path = os.path.join(os.getcwd(), "pyia2", "IAccessible2Proxy32bit.dll")
+    else:
+        dll_path = os.path.join(os.getcwd(), "pyia2", "IAccessible2Proxy64bit.dll")
     return_code = ShellExecute(None, "runas", "regsvr32.exe", dll_path, None, 1)
     if return_code > 32:
         print("Success.")
@@ -82,7 +86,7 @@ setup(name="pyia2",
       classifiers=classifiers,
       version=get_version("pyia2/__init__.py"),
       packages=["pyia2"],
-      package_data={"": ["*.tlb"]},
+      package_data={"": ["*.tlb","IAccessible2Proxy32bit.dll","IAccessible2Proxy64bit.dll"]},
       install_requires=["comtypes", "six"],
       cmdclass={
           'develop': PostDevelopCommand,
