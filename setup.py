@@ -16,12 +16,18 @@ from setuptools.command.install import install
 classifiers = [
     'Development Status :: 3 - Alpha',
     'Intended Audience :: Developers',
-    'License :: OSI Approved :: LGPLv2.2',
+    'License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)',
     'Operating System :: Microsoft :: Windows',
     'Programming Language :: Python',
     'Topic :: Software Development :: Libraries :: Python Modules',
     ]
 
+
+def get_long_description():
+    with open(os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), 'README.md'
+    ), encoding='utf8') as fp:
+        return fp.read()
 
 def read(rel_path):
     here = os.path.abspath(os.path.dirname(__file__))
@@ -40,8 +46,10 @@ def get_version(rel_path):
 
 def post_install():
     # Display a message about registering the DLL.
-    print("Attempting to register IAccessible2Proxy.dll with elevated "
-          "privileges...")
+    #Python Binary 32 or 64 bit
+    python_bit = struct.calcsize("P") * 8
+    print("Attempting to register IAccessible2Proxy{}bit.dll with elevated "
+          "privileges...".format(python_bit))
 
     # Do this via the Windows ShellExecuteA / ShellExecuteW functions.
     # Use the ANSI function if using Python 2.
@@ -50,7 +58,7 @@ def post_install():
     ShellExecute = shell32.ShellExecuteA if PY2 else shell32.ShellExecuteW
 
     # Get the DLL's path and attempt to register it with elevated privileges.
-    if (struct.calcsize("P") * 8) == 32:
+    if python_bit == 32:
         dll_path = os.path.join(os.getcwd(), "pyia2", "IAccessible2Proxy32bit.dll")
     else:
         dll_path = os.path.join(os.getcwd(), "pyia2", "IAccessible2Proxy64bit.dll")
@@ -77,7 +85,8 @@ class PostInstallCommand(install):
 
 setup(name="pyia2",
       description="Python MSAA+IAccessible2 client library",
-      long_description = __doc__,
+      long_description = get_long_description(),
+      long_description_content_type="text/markdown",
       author="Jon Gunderson",
       author_email="jongund@illinois.edu",
       url="https://github.com/illinois-dres-aitg/pyia2/tree/master",
